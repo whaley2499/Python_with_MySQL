@@ -1,27 +1,43 @@
 import mysql.connector
 
-if __name__ == "__main__":
+def sqlInput(insertStatement,sqlValues):
+    try:
+        mycursor.execute(insertStatement,sqlValues)
+        mydb.commit()
+    except:
+        print("User input Error")
+        raise(AssertionError)
+
+try:
     mydb = mysql.connector.connect(
         host = "localhost",
         user="user",
         password="password123",
         database="nodepeopledb"
     )
-    mycursor = mydb.cursor()
+except:
+    print("Error: Cannot connect to database")
+    exit(ConnectionError)
+
+mycursor = mydb.cursor()
+
+if __name__ == "__main__":
 
     insertStatement = "INSERT INTO people (name, email, phonenumber) VALUES (%s, %s, %s)"
-    usrInput = input("Input new person's name, email, and phone number:")
-    values = usrInput.split()
+    userInput = input("Input new person's name, email, and phone number seperated by spaces:\n").strip()
+    values = userInput.split()
     sqlValues = (values[0],values[1],values[2])
 
-    mycursor.execute(insertStatement,sqlValues)
-    
-    mydb.commit()
+    sqlInput(insertStatement,sqlValues)
+
     print(mycursor.rowcount, "record inserted")
-    print("Current database of people:")
 
-    mycursor.execute("SELECT * FROM people")
-    myresult = mycursor.fetchall()
+    userSelection = input("Print Current Database?(Y/N)").upper().strip()
+    if userSelection == "Y":
+        print("Current database of people: \n")
 
-    for x in myresult:
-        print(x)
+        mycursor.execute("SELECT * FROM people")
+        myresult = mycursor.fetchall()
+        for x in myresult:
+            print(x)
+        print()
